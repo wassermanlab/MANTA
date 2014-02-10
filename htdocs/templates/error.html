@@ -1,0 +1,22 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html lang="en">
+<head>
+  <link rel="stylesheet" href="[% htdocs_rel_path %]/styles.css" type="text/css">
+
+  <title>[% title %]</title>
+</head>
+<body>
+  <h1>[% header %]</h1>
+
+  <h3>The following error occured</h3>
+
+  <p>[% error %]</p>
+
+  <br>
+  <br>
+  <form name="results" enctype="multipart/form-data" action="TFFM_webapp.py" method="post">
+    <input type="submit" name="Submit" value="Back to start">
+    <input type="hidden" name="rm" value="start">
+  </form>
+</body>
+</html>

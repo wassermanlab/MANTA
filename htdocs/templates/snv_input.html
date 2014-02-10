@@ -1,0 +1,42 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html lang="en">
+<head>
+  <link rel="stylesheet" href="[% htdocs_rel_path %]/styles.css" type="text/css">
+  <title>[% title %]></title>
+</head>
+
+<body>
+  [% INCLUDE navigation.html %]
+
+  <h1>[% header %]</h1>
+
+  <form name="input" enctype="multipart/form-data" action="manta.py" method="post">
+    <h3>Provide SNVs in <b>VCF</b>, <b>GFF</b> or <b>BED</b> Format</h3>
+
+    <a href="[%htdocs_rel_path%]/help.html#snv_input" target="_help">[help]</a>
+    <br>
+    <br>
+
+    SNV input file format:<br>
+    <input type="radio" name="snv_filetype" value="vcf" checked>VCF<br>
+    <input type="radio" name="snv_filetype" value="gff">GFF<br>
+    <input type="radio" name="snv_filetype" value="bed">BED<br>
+    
+    <br>
+    Paste SNVs:
+    <br>
+    <textarea name="snv_paste" rows="10" cols="80" wrap="soft"></textarea>
+    <br>
+    <br>
+    <b>OR</b> upload an SNV file:<br>
+    <input type="file" name="snv_upload" size="60">
+    <br>
+    <br>
+
+    <input type="submit" name="Submit" value="Submit">
+    <input type="reset" name="Reset" value="Reset">
+    <input type="hidden" name="rm" value="search_snvs">
+    <br>
+  </form>
+</body>
+</html>

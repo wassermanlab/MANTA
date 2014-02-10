@@ -1,0 +1,109 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html lang="en">
+<head>
+  <link rel="stylesheet" href="styles.css" type="text/css">
+
+  <title>MANTA Help</title>
+</head>
+
+<body>
+  <h1>MANTA Help</h1>
+
+  <h2>Description</h2>
+  <p>
+  Putative transcription factor binding sites (TFBS) can be predicted using binding site profiles represented as position weight matrices (PWMs) -- also known as position specific scoring matrices (PSSMs). Applying PWMs to a particular position on a sequence yields a score at this position. This score represents the predicted binding affinity of the transcription factor (TF) at that position. This binding affinity may be disrupted by mutations within the binding site which will be reflected in the PWM score.
+  </p>
+  <p>
+  MANTA is a tool which predicts the impact of SNVs on putative TFBSs. TFBSs are predicted by scoring all the peak sequences from a large set of ChIP-seq experiemnts with PWMs for the corresponding TFs from the JASPAR database. For all TFBSs predicted within all ChIP-seq peak sequences which score above a given threshold, each position in the TFBS sequence is mutated with each of the 3 possible alternate alleles. For each of these mutations the best scoring PWM containing the SNV position is computed. The unmutated TFBS score is compared to the score of the best scoring TFBS containing the mutation and an impact score is computed. This information is stored in database.
+  </p>
+  <p>
+  The web interface allows a user to provide a set of SNVs using any one of a set of standard bioinformatics file formats. Each SNV in the user's file is compared to SNVs predicted to impact TFBSs. For each provided SNV, if a match is found in the MANTA database, the corresponding SNV, unmutated TFBS and mutated TFBS information is output to results. Results are provided as both a web page and a tab-delimited text file.
+  </p>
+
+  <h2>Specify SNVs</h2>
+  <a name="snv_input"></a>
+  <p>
+  This page allows you to enter SNVs and search the MANTA database for putative TFBSs which are impacted by these SNVs.
+  </p>
+
+  <h3>SNV File Formats</h3>
+  
+  <p>
+  MANTA allows you to specify SNVs with several file formats including VCF, GFF and BED. You may either paste the SNVs directly into the text area, or upload a file using the file upload button. The formats and how they are used by MANTA are described below.
+  </p>
+
+  <a name="input_vcf"></a>
+  <h4>VCF Format</h4>
+  
+  The VCF file format is described <a href="http://www.1000genomes.org/node/101" target="_blank">here</a>.
+
+  MANTA ignores all lines starting with '#' and only requires the first 5 fields: <samp>CHROM</samp>, <samp>POS</samp>, <samp>ID</samp>, <samp>REF</samp> and <samp>ALT</samp>. An example line is as follows:
+  </p>
+  <pre><code>
+  chr1    808631    rs11240779    G    A
+  </code></pre>
+
+  <a name="input_GFF"></a>
+  <h4>GFF Format</h4>
+  
+  <p>
+  MANTA expects GFF file format version 2 which is described <a href="http://www.sanger.ac.uk/resources/software/gff/spec.html" target="_blank">here</a>. The chromosome should be specified in the <samp>seqname</samp> field (the 1st field), either with a <i>chr</i> prefix or not. The <samp>source</samp> and <samp>feature</samp> fields are ignored. The <samp>start</samp> and <samp>end</samp> fields define the position of the SNV. The <samp>score</samp>, <samp>strand</samp> and <samp>frame</samp> fields are ignored. The <samp>attributes</samp> field is used to specify the reference and alternate alleles using the tags <i>ref_allele</i> and <i>alt_allele</i>. An example line is as follows:
+  </p>
+  <pre><code>
+  chr1    dbSNP    SNP    808631    808631    .    .    .    ref_allele=G; alt_allele=A
+  </code></pre>
+
+  <a name="input_BED"></a>
+  <h4>BED Format</h4>
+
+  <p>
+  The BED file format is described <a href="https://genome.ucsc.edu/FAQ/FAQformat.html#format1" target="_blank">here</a>. MANTA only requires the first 4 fields. Additional fields are ignored. As there are no BED fields explicitly designed to specify allele information, the <samp>name</samp> field (4th field) is used to specify the alternate allele (the reference allele is assumed). Note that the BED format specifies 0-based coordinates and the end is not included in the display of the feature. An example line is as follows:
+  </p>
+  <pre><code>
+  chr1    808630    808631    A
+  </code></pre>
+
+  <p>
+  MANTA only predicts the impact of SNVs on TFBSs. It does not currently predict the impact of indels or other types of variants. For formats which specify both a start and end coordinate, if the coordinates specified in a particular line of the file do not indicate an SNV, this variant is ignored (this line is skipped). Future versions of MANTA will also implement indel TFBS impact predictions.
+  </p>
+
+  <h3>Searching MANTA</h3>
+
+  <p>
+  Once you have pasted or uploaded your SNVs press the Submit button to search the MANTA database for putative TFBSs which are impacted. Once the search is complete the results page with appear showing all SNVs which impacted TFBSs.
+  
+  <a name="results"></a>
+  <h2>MANTA Results</h2>
+
+  <p>
+  The results of the MANTA search are provided in a table. For each SNV that impacted one or more TFBSs, it displays the SNV information along with the associated wild-type (reference) and mutated (alternate) TFBS information.
+  </p>
+
+  The results table contains the following columns:<br>
+  <ol>
+  <li><b>Chromosome</b> - Name of the chromosome on which the SNV/TFBS appear</li>
+  <li><b>Position</b> - Chromosomal location of the SNV</li>
+  <li><b>Ref Allele</b> - The reference allele at this chromosomal location</li>
+  <li><b>Alt Allele</b> - The specified alternate allele for this chromosomal location </li>
+  <li><b>SNV ID</b> - ID/name of the SNV if the input file format allows for it. Otherwise displayed as '.'.
+  <li><b>TF</b> - The name of the transcription factor whose binding site is impacted by this SNV</li>
+  <li><b>JASPAR ID</b> - The JASPAR ID of the position weight matrix used to predict the binding site for this transcription factor</li>
+  <li><b>Ref TFBS Start</b> - The start position of the predicted TFBS on the reference sequence</li>
+  <li><b>Ref TFBS End</b> - The end position of the predicted TFBS on the reference sequence</li>
+  <li><b>Ref Strand</b> - The strand of the predicted TFBS on the reference sequence</li>
+  <li><b>Ref Abs Score</b> - The absolute (raw) score of the predicted TFBS at this position on the reference sequence</li>
+  <li><b>Ref Rel Score</b> - The relative score of the predicted TFBS at this position on the reference sequence in the range 0 to 1.0</li>
+  <li><b>Alt TFBS Start</b> - The start position of the best scoring predicted TFBS on the SNV mutated sequence</li>
+  <li><b>Alt TFBS End</b> - The end position of the best scoring predicted TFBS on the SNV mutated sequence</li>
+  <li><b>Alt Strand</b> - The strand of the best scoring predicted TFBS on the SNV mutated sequence</li>
+  <li><b>Alt Abs Score</b> - The absolute (raw) score of the predicted TFBS at the alternate position on the SNV mutated sequence</li>
+  <li><b>Alt Rel Score</b> - The relative score of the predicted TFBS at the alternate position on the SNV mutated sequence</li>
+  <li><b>Impact Score</b> - A measure of the impact of the SNV on the predicted TFBS</li>
+  </ol>
+
+  <p>
+  The table may be sorted on any column by clicking on the column header.
+  </p>
+
+</body>
+</html>

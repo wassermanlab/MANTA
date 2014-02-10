@@ -1,0 +1,65 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html lang="en">
+<head>
+  <link rel="stylesheet" href="[%htdocs_rel_path%]/styles.css" type="text/css">
+  <script type="text/javascript" src="[%htdocs_rel_path%]/templates/sorttable.js"></script>
+
+  <title>[%title%]</title>
+</head>
+<body>
+  [% INCLUDE navigation.html %]
+
+  <h1>[%header%]</h1>
+  
+  <h3>Results</h3>
+
+  <a href="[%htdocs_rel_path%]/help.html#results" target="_help">[help]</a>
+  <br>
+  <br>
+
+  Download SNV impacts as a tab delimited text file <a href="[%hits_text_url%]">here</a>
+  <br>
+  <br>
+  <center>Click column headers to sort by that column</center>
+  <br>
+
+  <table id=snv_impacts class="sortable" cellpadding="2" cellspacing="0">
+    <tr><th align=left>Chromosome</th><th>Position</th><th>Ref Allele</th><th>Alt Allele</th><th>TF</th><th>JASPAR ID</th><th>Ref TFBS Start</th><th>Ref TFBS End</th><th>Ref TFBS Strand</th><th>Ref Abs Score</th><th>Ref Rel Score</th><th>Alt TFBS Start</th><th>Alt TFBS End</th><th>Alt TFBS Strand</th><th>Alt Abs Score</th><th>Alt Rel Score</th><th>Impact Score</th></tr>
+
+    [%FOREACH si = snv_impacts%]
+      <tr>
+        <td>[%si.chrom%]</td>
+        <td>[%si.position%]</td>
+        <td>[%si.ref_allele%]</td>
+        <td>[%si.alt_allele%]</td>
+        <td>[%si.snv_id%]</td>
+        <td>[%si.tf_name%]</td>
+        <td>[%si.jaspar_tf_id%]</td>
+        <td>[%si.start1%]</td>
+        <td>[%si.end1%]</td>
+        <td>[%si.strand1%]</td>
+        <td>[%si.abs_score1%]</td>
+        <td>[%si.rel_score1%]</td>
+        <td>[%si.start2%]</td>
+        <td>[%si.end2%]</td>
+        <td>[%si.strand2%]</td>
+        <td>[%si.abs_score2%]</td>
+        <td>[%si.rel_score2%]</td>
+        <td>[%si.impact%]</td>
+      </tr>
+    [%END%]
+  </table>
+
+  <br>
+  Download SNV impacts as a tab delimited text file <a href="[%snv_impacts_file_url%]">here</a>
+
+  <br>
+  <br>
+  <br>
+  <form name="results" enctype="multipart/form-data" action="manta.py" method="post">
+    <input type="submit" name="Submit" value="Back to start">
+    <input type="hidden" name="rm" value="start">
+  </form>
+  <br>
+</body>
+</html>
