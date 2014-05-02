@@ -368,10 +368,10 @@ class MantaWebapp(CGI_Application):
             alt_allele = var['alt_allele']
 
             query = {
-                'chrom' : var['chrom'],
-                'start' : {'$lte': pos},
-                'end' : {'$gte': pos}
+                'chrom' : chrom,
+                'snvs.pos' : pos
             }
+
 
             for tfbs_snv in db.tfbs_snvs.find(query):
                 #
@@ -386,33 +386,44 @@ class MantaWebapp(CGI_Application):
                     {'_id' : bson.ObjectId(exp_ids[0])}
                 )
 
-                if ref_allele == 'N' or tfbs_snv['snvs'][str(pos)]['ref_allele'] == ref_allele:
-                    impact = tfbs_snv['snvs'][str(pos)][alt_allele]
+                snvs = tfbs_snv['snvs']
+                for snv in snvs:
+                    if snv['pos'] == pos:
+                        if snv['ref_allele'] != ref_allele:
+                            sys.stderr.write("Ref allele mismatch {0} vs. {1} for TFBS {2} chr{3}:{4}-{5} at SNV position {6}\n".format(snv['ref_allele'], ref_allele, tfbs_snv['jaspar_tf_id'], chrom, tfbs_snv['start'], tfbs_snv['end'], pos))
 
-                    snv_impacts.append(
-                        {
-                            'tf_name'       : experiment['tf_name'],
-                            'snv_id'        : snv_id,
-                            'chrom'         : chrom,
-                            'position'      : pos,
-                            'ref_allele'    : ref_allele,
-                            'alt_allele'    : alt_allele,
-                            'jaspar_tf_id'  : tfbs_snv['jaspar_tf_id'],
-                            'start1'        : tfbs_snv['start'],
-                            'end1'          : tfbs_snv['end'],
-                            'strand1'       : tfbs_snv['strand'],
-                            'abs_score1'    : tfbs_snv['abs_score'],
-                            'rel_score1'    : tfbs_snv['rel_score'],
-                            'start2'        : impact['start'],
-                            'end2'          : impact['end'],
-                            'strand2'       : impact['strand'],
-                            'abs_score2'    : impact['abs_score'],
-                            'rel_score2'    : impact['rel_score'],
-                            'impact'        : impact['impact']
-                        }
-                    )
-                else:
-                    sys.stderr.write("Ref allele mismatch {0} vs. {1}\n".format(tfbs_snv['snvs'][str(pos)]['ref_allele'], ref_allele))
+                            break
+
+                        if alt_allele in snv:
+                            impact = snv[alt_allele]
+
+                            snv_impacts.append(
+                                {
+                                    'tf_name'       : experiment['tf_name'],
+                                    'snv_id'        : snv_id,
+                                    'chrom'         : chrom,
+                                    'position'      : pos,
+                                    'ref_allele'    : ref_allele,
+                                    'alt_allele'    : alt_allele,
+                                    'jaspar_tf_id'  : tfbs_snv['jaspar_tf_id'],
+                                    'start1'        : tfbs_snv['start'],
+                                    'end1'          : tfbs_snv['end'],
+                                    'strand1'       : tfbs_snv['strand'],
+                                    'abs_score1'    : tfbs_snv['abs_score'],
+                                    'rel_score1'    : tfbs_snv['rel_score'],
+                                    'start2'        : impact['start'],
+                                    'end2'          : impact['end'],
+                                    'strand2'       : impact['strand'],
+                                    'abs_score2'    : impact['abs_score'],
+                                    'rel_score2'    : impact['rel_score'],
+                                    'impact'        : impact['impact']
+                                }
+                            )
+
+                            break
+                        else:
+                            sys.stderr.write("Alt. allele {0} not found in TFBS {1} chr{2}:{3}-{4} at position {5}\n".format(alt_allele, tfbs_snv['jaspar_tf_id'], chrom, tfbs_snv['start'], tfbs_snv['end'], pos))
+                            break
 
         return snv_impacts
 
