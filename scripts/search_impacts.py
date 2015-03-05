@@ -142,10 +142,10 @@ def read_variants_file(filename, filetype):
                 # NOTE: using the name field as alt. allele
                 alt_allele = cols[3]
 
-                # Don't have ref. allele info so set to '0'
+                # Don't have ref. allele info so set to '.'
                 # This is used later to determine if the input file was BED
                 # and therefore the ref. allele is actually unknown.
-                ref_allele = '0'
+                ref_allele = '.'
 
                 if start < end - 1:
                     # In this case, assume we have an indel rather than
@@ -269,7 +269,7 @@ def search_database(db, variants):
             snvs = tfbs_snv['snvs']
             for snv in snvs:
                 if snv['pos'] == pos:
-                    if snv['ref_allele'] != ref_allele and ref_allele != '0':
+                    if ref_allele != '.' and snv['ref_allele'] != ref_allele:
                         sys.stderr.write("Ref allele mismatch {0} vs. {1} for TFBS {2} chr{3}:{4}-{5} at SNV position {6}\n".format(snv['ref_allele'], ref_allele, tfbs_snv['jaspar_tf_id'], chrom, tfbs_snv['start'], tfbs_snv['end'], pos))
 
                         break
@@ -315,7 +315,7 @@ def write_snv_impacts(filename, snv_impacts):
 
     fh = open(filename, 'w')
 
-    fh.write("Chrom\tPosition\tRef. allele\tAlt. allele\tSNV ID\tTF name\tJASPAR ID\tRef. TFBS start\tRef. TFBS end\tRef. TFBS strand\tRef. TFBS abs. score\tRef. TFBS rel. score\tAlt. TFBS start\tAlt. TFBS end\tAlt. TFBS strand\tAlt. TFBS abs. score\tAlt. TFBS rel. score\tInpact score\n")
+    fh.write("Chrom\tPosition\tRef_allele\tAlt_allele\tSNV_ID\tTF_name\tJASPAR_ID\tRef_TFBS_start\tRef_TFBS_end\tRef_TFBS_strand\tRef_TFBS_abs_score\tRef_TFBS_rel_score\tAlt_TFBS_start\tAlt_TFBS_end\tAlt_TFBS_strand\tAlt_TFBS_abs_score\tAlt_TFBS_rel_score\tImpact_score\n")
 
     for si in snv_impacts:
         fh.write("{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}\t{7}\t{8}\t{9}\t{10:0.3f}\t{11:0.3f}\t{12}\t{13}\t{14}\t{15:0.3f}\t{16:0.3f}\t{17:0.3f}\n".format(si['chrom'], si['position'], si['ref_allele'], si['alt_allele'], si['snv_id'], si['tf_name'], si['jaspar_tf_id'], si['start1'], si['end1'], si['strand1'], si['abs_score1'], si['rel_score1'], si['start2'], si['end2'], si['strand2'], si['abs_score2'], si['rel_score2'], si['impact']))
@@ -336,7 +336,7 @@ def check_alleles(ref_allele, alt_allele):
         return False
     if ref_allele.upper() == alt_allele.upper():
         return False
-    if not (REF_ALLELE_REGEX.match(ref_allele) or ref_allele == '0'):
+    if not (REF_ALLELE_REGEX.match(ref_allele) or ref_allele == '.'):
         return False
     if not ALT_ALLELE_REGEX.match(alt_allele):
         return False
