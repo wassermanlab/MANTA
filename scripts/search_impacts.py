@@ -315,6 +315,8 @@ def write_snv_impacts(filename, snv_impacts):
 
     fh = open(filename, 'w')
 
+    fh.write("Chrom\tPosition\tRef. allele\tAlt. allele\tSNV ID\tTF name\tJASPAR ID\tRef. TFBS start\tRef. TFBS end\tRef. TFBS strand\tRef. TFBS abs. score\tRef. TFBS rel. score\tAlt. TFBS start\tAlt. TFBS end\tAlt. TFBS strand\tAlt. TFBS abs. score\tAlt. TFBS rel. score\tInpact score\n")
+
     for si in snv_impacts:
         fh.write("{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}\t{7}\t{8}\t{9}\t{10:0.3f}\t{11:0.3f}\t{12}\t{13}\t{14}\t{15:0.3f}\t{16:0.3f}\t{17:0.3f}\n".format(si['chrom'], si['position'], si['ref_allele'], si['alt_allele'], si['snv_id'], si['tf_name'], si['jaspar_tf_id'], si['start1'], si['end1'], si['strand1'], si['abs_score1'], si['rel_score1'], si['start2'], si['end2'], si['strand2'], si['abs_score2'], si['rel_score2'], si['impact']))
 
