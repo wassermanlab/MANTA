@@ -141,8 +141,11 @@ def read_variants_file(filename, filetype):
                 end   = int(cols[2])
                 # NOTE: using the name field as alt. allele
                 alt_allele = cols[3]
-                # Don't have ref. allele info so set to 'N'
-                ref_allele = 'N'
+
+                # Don't have ref. allele info so set to '0'
+                # This is used later to determine if the input file was BED
+                # and therefore the ref. allele is actually unknown.
+                ref_allele = '0'
 
                 if start < end - 1:
                     # In this case, assume we have an indel rather than
@@ -266,7 +269,7 @@ def search_database(db, variants):
             snvs = tfbs_snv['snvs']
             for snv in snvs:
                 if snv['pos'] == pos:
-                    if snv['ref_allele'] != ref_allele:
+                    if snv['ref_allele'] != ref_allele and ref_allele != '0':
                         sys.stderr.write("Ref allele mismatch {0} vs. {1} for TFBS {2} chr{3}:{4}-{5} at SNV position {6}\n".format(snv['ref_allele'], ref_allele, tfbs_snv['jaspar_tf_id'], chrom, tfbs_snv['start'], tfbs_snv['end'], pos))
 
                         break
@@ -331,7 +334,7 @@ def check_alleles(ref_allele, alt_allele):
         return False
     if ref_allele.upper() == alt_allele.upper():
         return False
-    if not REF_ALLELE_REGEX.match(ref_allele):
+    if not (REF_ALLELE_REGEX.match(ref_allele) or ref_allele == '0'):
         return False
     if not ALT_ALLELE_REGEX.match(alt_allele):
         return False
