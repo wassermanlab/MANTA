@@ -39,7 +39,11 @@ from constants import (
 
 class MantaWebapp(CGI_Application):
     def setup(self):
+        self.errors = []
         self.start_mode = 'start'
+
+    def add_error(self, error):
+        self.errors.append(error)
 
     def start(self):
         '''
@@ -121,6 +125,9 @@ class MantaWebapp(CGI_Application):
 
         snvs = self.read_variants_file(snv_file, snv_filetype)
 
+        if snvs is None: 
+            return self.html_error()
+
         snv_impacts = self.search_database(snvs)
 
         snv_impacts_text_file = os.path.join(
@@ -166,7 +173,8 @@ class MantaWebapp(CGI_Application):
                     cols = line.split('\t')
 
                     if len(cols) < 5:
-                        return self.html_error("VCF file contains less than 5 columns")
+                        self.add_error("VCF file appears to contain less than 5 columns. Please make sure file is tab-delimited.")
+                        return None
 
                     chrom       = cols[0]
                     position    = cols[1]
@@ -199,7 +207,8 @@ class MantaWebapp(CGI_Application):
                     cols = line.split('\t')
 
                     if len(cols) < 9:
-                        return self.html_error("GFF file contains no attributes column")
+                        self.add_error("GFF file appears to contain less than 9 columns. Please make sure file is tab-delimited.")
+                        return None
 
                     chrom, data_source, feature_type, start, end, score, strand, frame, attribute_list = cols
 
@@ -220,10 +229,12 @@ class MantaWebapp(CGI_Application):
                             if attr_name == 'alt_allele' or attr_name == 'alt_allele':
                                 alt_allele = attr_val
                     else:
-                        return self.html_error("GFF file has blank attributes field")
+                        self.add_error("GFF file has blank attributes field")
+                        return None
 
                     if not ref_allele or not alt_allele:
-                        return self.html_error("GFF attributes field contains no ref_allele or alt_allele information")
+                        self.add_error("GFF attributes field contains no ref_allele or alt_allele information")
+                        return None
 
                     if not self.check_alleles(ref_allele, alt_allele):
                         continue
@@ -260,10 +271,24 @@ class MantaWebapp(CGI_Application):
 
                     #sys.stderr.write("BED line: {0}\n".format(line))
 
+                    #
+                    # NOTE: The BED format does not explicitly state that
+                    # the columns should be tab delimited and in fact when
+                    # loading BED files into the UCSC genome browser, the
+                    # browser splits on any whitespace. But since it may be
+                    # commonly assumed that BED files should be tab-delimited
+                    # try to first split on tabs and if that 'fails', attempt
+                    # to split on whitespace.
+                    #
                     cols = line.split('\t')
-                    
+
                     if len(cols) < 4:
-                        return self.html_error("BED file has less than 4 columns")
+                        cols = line.split('\s+')
+
+                        if len(cols) < 4:
+                            self.add_error("BED file appears to contain less than 4 columns. Please make sure file is tab or space delimited.")
+                            return None
+
                     chrom = cols[0]
                     start = int(cols[1])
                     end   = int(cols[2])
@@ -321,7 +346,8 @@ class MantaWebapp(CGI_Application):
                     cols = line.split('\t')
 
                     if len(cols) < 4:
-                        return self.html_error("SNV file contains less than 4 columns")
+                        self.add_error("SNV file appears to contain less than 4 columns. Please make sure file is tab-delimited.")
+                        return None
 
                     chrom      = cols[0]
                     position   = cols[1]
@@ -341,7 +367,8 @@ class MantaWebapp(CGI_Application):
                     variants.append(var)
 
             else:
-                return self.html_error("Unknown SNV file type {0}".format(filetype))
+                self.add_error("Unknown SNV file type {0}".format(filetype))
+                return None
 
         return variants
 
@@ -397,6 +424,17 @@ class MantaWebapp(CGI_Application):
                         if alt_allele in snv:
                             impact = snv[alt_allele]
 
+                            strand1 = '+' if tfbs_snv['strand'] == 1 else '-';
+                            strand2 = '+' if impact['strand'] == 1 else '-';
+                            abs_score1 = "{0:0.3f}".format(
+                                tfbs_snv['abs_score'])
+                            rel_score1 = "{0:0.1f}%".format(
+                                tfbs_snv['rel_score'] * 100)
+                            abs_score2 = "{0:0.3f}".format(impact['abs_score'])
+                            rel_score2 = "{0:0.1f}%".format(
+                                impact['rel_score'] * 100)
+                            impact_score = "{0:0.3f}".format(impact['impact'])
+
                             snv_impacts.append(
                                 {
                                     'tf_name'       : experiment['tf_name'],
@@ -408,15 +446,15 @@ class MantaWebapp(CGI_Application):
                                     'jaspar_tf_id'  : tfbs_snv['jaspar_tf_id'],
                                     'start1'        : tfbs_snv['start'],
                                     'end1'          : tfbs_snv['end'],
-                                    'strand1'       : tfbs_snv['strand'],
-                                    'abs_score1'    : tfbs_snv['abs_score'],
-                                    'rel_score1'    : tfbs_snv['rel_score'],
+                                    'strand1'       : strand1,
+                                    'abs_score1'    : abs_score1,
+                                    'rel_score1'    : rel_score1,
                                     'start2'        : impact['start'],
                                     'end2'          : impact['end'],
-                                    'strand2'       : impact['strand'],
-                                    'abs_score2'    : impact['abs_score'],
-                                    'rel_score2'    : impact['rel_score'],
-                                    'impact'        : impact['impact']
+                                    'strand2'       : strand2,
+                                    'abs_score2'    : abs_score2,
+                                    'rel_score2'    : rel_score2,
+                                    'impact'        : impact_score
                                 }
                             )
 
@@ -435,8 +473,12 @@ class MantaWebapp(CGI_Application):
 
         fh = open(filename, 'w')
 
+        #
+        # Note, the values in the snv_impacts structure are now already
+        # pre-formatted for consistency in both the web and flat file display.
+        #
         for si in snv_impacts:
-            fh.write("{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}\t{7}\t{8}\t{9}\t{10:0.3f}\t{11:0.3f}\t{12}\t{13}\t{14}\t{15:0.3f}\t{16:0.3f}\t{17:0.3f}\n".format(si['chrom'], si['position'], si['ref_allele'], si['alt_allele'], si['snv_id'], si['tf_name'], si['jaspar_tf_id'], si['start1'], si['end1'], si['strand1'], si['abs_score1'], si['rel_score1'], si['start2'], si['end2'], si['strand2'], si['abs_score2'], si['rel_score2'], si['impact']))
+            fh.write("{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}\t{7}\t{8}\t{9}\t{10}\t{11}\t{12}\t{13}\t{14}\t{15}\t{16}\t{17}\n".format(si['chrom'], si['position'], si['ref_allele'], si['alt_allele'], si['snv_id'], si['tf_name'], si['jaspar_tf_id'], si['start1'], si['end1'], si['strand1'], si['abs_score1'], si['rel_score1'], si['start2'], si['end2'], si['strand2'], si['abs_score2'], si['rel_score2'], si['impact']))
 
         fh.close()
 
@@ -462,19 +504,36 @@ class MantaWebapp(CGI_Application):
         return True
 
 
-    def html_error(self, error):
+    def html_error(self, error=None):
         '''
         Display error as an html page
         '''
 
-        sys.stderr.write(error)
+        #
+        # If an error is passed, append the error to any
+        # already existing errors.
+        #
+        if error:
+            self.errors.append(error)
+
+        #
+        # Write the errors to standard error (which should be
+        # redirected to the web server error log).
+        #
+        for err in self.errors:
+            sys.stderr.write(err)
+
+        #
+        # Create the html error string.
+        #
+        html_error_str = "<br>".join(["{0}".format(err) for err in self.errors])
 
         vars = {
             'htdocs_rel_path' : HTDOCS_REL_PATH,
             'cgi_bin_rel_path' : CGI_BIN_REL_PATH,
             'header' : 'MANTA Error',
             'title' : 'Error',
-            'error' : error
+            'error' : html_error_str
         }
 
         return self.process_template("error.html", vars)

@@ -8,16 +8,12 @@
 <body>
   [% INCLUDE navigation.html %]
 
-  <h1>[% header %]</h1>
-
   <form name="input" enctype="multipart/form-data" action="manta.py" method="post">
+    <h1>[% header %]</h1>
+
     <h3>Provide SNVs in <b>VCF</b>, <b>GFF</b> or <b>BED</b> Format</h3>
 
-    <a href="[%htdocs_rel_path%]/help.html#snv_input" target="_help">[help]</a>
-    <br>
-    <br>
-
-    SNV input file format:<br>
+    SNV input file format&nbsp;<a href="[%htdocs_rel_path%]/help.html#snv_input" target="_help">[help]</a>:<br>
     <input type="radio" name="snv_filetype" value="vcf" checked>VCF<br>
     <input type="radio" name="snv_filetype" value="gff">GFF<br>
     <input type="radio" name="snv_filetype" value="bed">BED<br>
@@ -25,14 +21,28 @@
     <br>
     Paste SNVs:
     <br>
-    <textarea name="snv_paste" rows="10" cols="80" wrap="soft"></textarea>
-    <br>
-    <br>
-    <b>OR</b> upload an SNV file:<br>
-    <input type="file" name="snv_upload" size="60">
-    <br>
-    <br>
+    <table>
+      <tr>
+        <td>
+          <textarea name="snv_paste" rows="10" cols="80" wrap="soft"></textarea>
+        </td>
+      </tr>
+      <tr>
+        <td align="right">
+          <input type="button" name="clear_snv_paste" value="Clear"
+              onClick="{input.snv_paste.value=''}">
+        </td>
+      </tr>
+    </table>
 
+    <b>OR</b> upload an SNV file:<br>
+    <input type="file" name="snv_upload" size="60"></input>
+    <input type="button" name="clear_snv_upload_file" value="Clear"
+          onClick="{input.snv_upload.value=''}">
+
+    <br>
+    <br>
+    <br>
     <input type="submit" name="Submit" value="Submit">
     <input type="reset" name="Reset" value="Reset">
     <input type="hidden" name="rm" value="search_snvs">
