@@ -173,7 +173,7 @@ class MantaWebapp(CGI_Application):
                     cols = line.split('\t')
 
                     if len(cols) < 5:
-                        self.add_error("VCF file appears to contain less than 5 columns. Please make sure file is tab-delimited.")
+                        self.add_error("For VCF formatted input, <em>please make sure</em> that at least the first <b>5</b> columns are provided. <em>PLEASE NOTE</em> that the VCF format specification requires that the columns be <b>tab-separated</b> (this error often occurs if the VCF input columns were space-separated). Unfortunately, depending on the type of computer your are using, sometimes when a tab-delimited line is cut and pasted, the tabs automatically get converted to spaces.<br><br>Also, <em>PLEASE NOTE</em> that if you do not have a value for the <b>ID</b> field, please use a dot (\".\") instead of leaving it blank.")
                         return None
 
                     chrom       = cols[0]
@@ -207,7 +207,7 @@ class MantaWebapp(CGI_Application):
                     cols = line.split('\t')
 
                     if len(cols) < 9:
-                        self.add_error("GFF file appears to contain less than 9 columns. Please make sure file is tab-delimited.")
+                        self.add_error("For GFF formatted input, <em>please make sure</em> that <b>9</b> columns are provided. <em>PLEASE NOTE</em> that the GFF format specification requires that the columns be <b>tab-separated</b> (this error often occurs if the GFF input columns were space-separated). Unfortunately, depending on the type of computer your are using, sometimes when a tab-delimited line is cut and pasted, the tabs automatically get converted to spaces.<br><br>Also, <em>PLEASE NOTE</em> that if you do not have a value for one of the \"optional\" fields, e.g. the <samp>source</samp> field, please use a dot (\".\") instead of leaving it blank.")
                         return None
 
                     chrom, data_source, feature_type, start, end, score, strand, frame, attribute_list = cols
@@ -286,7 +286,7 @@ class MantaWebapp(CGI_Application):
                         cols = line.split('\s+')
 
                         if len(cols) < 4:
-                            self.add_error("BED file appears to contain less than 4 columns. Please make sure file is tab or space delimited.")
+                            self.add_error("For BED formatted input, <em>please make sure</em> that at least the first <b>4</b> columns are provided. The fields in the BED lines may be tab or space separated.")
                             return None
 
                     chrom = cols[0]
