@@ -37,7 +37,9 @@
   
   The VCF file format is described <a href="http://www.1000genomes.org/node/101" target="_blank">here</a>.
 
-  MANTA ignores all lines starting with '#' and only requires the first 5 fields: <samp>CHROM</samp>, <samp>POS</samp>, <samp>ID</samp>, <samp>REF</samp> and <samp>ALT</samp>. An example line is as follows:
+  MANTA ignores all lines starting with '#' and only requires the first 5 fields: <samp>CHROM</samp>, <samp>POS</samp>, <samp>ID</samp>, <samp>REF</samp> and <samp>ALT</samp>. The chromosome may be specified with or without the <samp>chr</samp> prefix. <em>PLEASE NOTE</em> that the VCF format specification requires that the columns be <b>tab-separated</b>. If you supply space separated fields, MANTA will give an error complaining that the number of columns is less than 5. Depending on which type of computer system you are using, if you are cutting and pasting VCF lines into the input text box, tabs may be automatically converted to spaces causing this error so please double check your input really is tab separated. Also, <em>PLEASE NOTE</em> that if you do not have a specific value for the <b>ID</b> field, please use a dot (".") instead of leaving it blank.<br><br>
+  
+  An example line is as follows:
   </p>
   <pre><code>
   chr1    808631    rs11240779    G    A
@@ -47,7 +49,9 @@
   <h4>GFF Format</h4>
   
   <p>
-  MANTA expects GFF file format version 2 which is described <a href="http://www.sanger.ac.uk/resources/software/gff/spec.html" target="_blank">here</a>. The chromosome should be specified in the <samp>seqname</samp> field (the 1st field), either with a <i>chr</i> prefix or not. The <samp>source</samp> and <samp>feature</samp> fields are ignored. The <samp>start</samp> and <samp>end</samp> fields define the position of the SNV. The <samp>score</samp>, <samp>strand</samp> and <samp>frame</samp> fields are ignored. The <samp>attributes</samp> field is used to specify the reference and alternate alleles using the tags <i>ref_allele</i> and <i>alt_allele</i>. An example line is as follows:
+  MANTA expects GFF file format version 2 which is described <a href="http://www.sanger.ac.uk/resources/software/gff/spec.html" target="_blank">here</a>. The chromosome should be specified in the <samp>seqname</samp> field (the 1st field), either with a <samp>chr</samp> prefix or not. The <samp>source</samp> and <samp>feature</samp> fields are ignored. The <samp>start</samp> and <samp>end</samp> fields define the position of the SNV. The <samp>score</samp>, <samp>strand</samp> and <samp>frame</samp> fields are ignored. The <samp>attributes</samp> field is used to specify the reference and alternate alleles using the tags <i>ref_allele</i> and <i>alt_allele</i>. As with the VCF format, the GFF input is expected to be  <b>tab-separated</b>. The same caveats relating to tab versus space separated fields for VCF input also applies to GFF input. Similarly for the GFF fields that are not required, please use a dot (".") instead of leaving them blank.<br><br>
+  
+  An example line is as follows:
   </p>
   <pre><code>
   chr1    dbSNP    SNP    808631    808631    .    .    .    ref_allele=G; alt_allele=A
@@ -57,7 +61,9 @@
   <h4>BED Format</h4>
 
   <p>
-  The BED file format is described <a href="https://genome.ucsc.edu/FAQ/FAQformat.html#format1" target="_blank">here</a>. MANTA only requires the first 4 fields. Additional fields are ignored. As there are no BED fields explicitly designed to specify allele information, the <samp>name</samp> field (4th field) is used to specify the alternate allele (the reference allele is assumed). Note that the BED format specifies 0-based coordinates and the end is not included in the display of the feature. An example line is as follows:
+  The BED file format is described <a href="https://genome.ucsc.edu/FAQ/FAQformat.html#format1" target="_blank">here</a>. MANTA only requires the first 4 fields. Additional fields are ignored. As there are no BED fields explicitly designed to specify allele information, the <samp>name</samp> field (4th field) is used to specify the alternate allele (the reference allele is assumed). Note that the BED format specifies 0-based coordinates and that the end is not included in the display of the feature. A simpler way of thinking about it for single nucleotide variations is that the end is the actual position of the variant (in the usual 1-based coordinate system) and the start coordinate is the nucleotide position before the variant. BED format may use either tabs or spaces (or any whitespace character) as field separators.<br><br>
+  
+  An example line is as follows:
   </p>
   <pre><code>
   chr1    808630    808631    A
