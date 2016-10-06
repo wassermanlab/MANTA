@@ -424,6 +424,16 @@ class MantaWebapp(CGI_Application):
 
                             break
 
+                        #
+                        # If the input variant file format doesn't allow for
+                        # the specification of the reference allele (e.g. BED
+                        # format doesn't have a column to specify this), then
+                        # set the reference allele to the actual reference
+                        # allele stored in the MANTA DB for this SNV position.
+                        #
+                        if ref_allele == '.':
+                            ref_allele = snv['ref_allele']
+
                         if alt_allele in snv:
                             impact = snv[alt_allele]
 
